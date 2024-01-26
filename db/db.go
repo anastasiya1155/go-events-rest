@@ -17,7 +17,7 @@ func InitDB() {
 		panic("DB connection failed")
 	}
 
-	DB.SetMaxOpenConns(7)
+	DB.SetMaxOpenConns(10)
 	DB.SetMaxIdleConns(5)
 
 	createTables()
