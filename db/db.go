@@ -24,25 +24,38 @@ func InitDB() {
 }
 
 func createTables() {
+	createUsersTabs := `CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		email TEXT NOT NULL UNIQUE,
+		password TEXT NOT NULL
+	)`
+
+	_, err := DB.Exec(createUsersTabs)
+
+	if err != nil {
+		panic("Migration failed!")
+	}
+
 	var createEventsTable = `CREATE TABLE IF NOT EXISTS events (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
 		description TEXT NOT NULL,
 		location TEXT NOT NULL,
 		dateTime DATETIME NOT NULL,
-		user_id INTEGER
+		user_id INTEGER,
+		FOREIGN KEY(user_id) REFERENCES users(id)
 	)`
-	_, err := DB.Prepare(createEventsTable)
+	stmt, err := DB.Prepare(createEventsTable)
 
 	if err != nil {
 		fmt.Println()
-		panic("Create table query invalid")
+		panic("Create events table query invalid")
 	}
-	// defer stmt.Close()
+	defer stmt.Close()
 
-	// _, err = stmt.Exec()
+	_, err = stmt.Exec()
 
-	// if err != nil {
-	// 	panic("Migration failed!")
-	// }
+	if err != nil {
+		panic("Migration failed!")
+	}
 }
