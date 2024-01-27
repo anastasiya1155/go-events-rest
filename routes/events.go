@@ -26,7 +26,7 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
-	event.UserID = 1
+	event.UserID = context.GetInt64("userId")
 	err = event.Save()
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Failed to save event"})
@@ -59,9 +59,13 @@ func updateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEventById(eventId)
+	event, err := models.GetEventById(eventId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch event"})
+		return
+	}
+	if event.UserID != context.GetInt64("userId") {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		return
 	}
 
@@ -93,6 +97,10 @@ func deleteEvent(context *gin.Context) {
 	event, err := models.GetEventById(eventId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch event"})
+		return
+	}
+	if event.UserID != context.GetInt64("userId") {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		return
 	}
 
